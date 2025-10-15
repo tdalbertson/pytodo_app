@@ -1,5 +1,7 @@
 from task import Task
 import shlex
+import os
+import json
 
 COMMANDS = ("add", "update", "delete", "mark-in-progress", "mark-done", "list", "exit")
 TEXT_COLORS = {
@@ -10,9 +12,9 @@ TEXT_COLORS = {
 
 
 def runCLI():
+    """Begins CLI-like environment to accept todo commands"""
     running = True
 
-    """Begins CLI-like environment to accept todo commands"""
     print(
         f"Welcome to your to-do list app! Please enter a command ({', '.join(command for command in COMMANDS)}):"
     )
@@ -31,6 +33,7 @@ def runCLI():
                     print("Please enter a task to add")
                 else:
                     print(f'You added "{userInput[1]}"')
+
             case "update":
                 print("You chose 'update'")
             case "delete":
@@ -48,15 +51,19 @@ def runCLI():
                     f"{TEXT_COLORS['RED']}Error: Please enter a valid command ({', '.join(command for command in COMMANDS)})"
                 )
 
+
 def confirmExit() -> bool:
     """Confirms if the user actually wants to exit this program"""
     confirmation = input("Are you sure you want to exit? (Y/N) ").lower()
     while True:
-        if confirmation == 'y':
+        if confirmation == "y":
             return False
-        elif confirmation == 'n':
+        elif confirmation == "n":
             return True
         else:
-            print(f"{TEXT_COLORS['RED']}Please enter a valid value (Y/N){TEXT_COLORS['RESET']} ", end="", flush=True)
+            print(
+                f"{TEXT_COLORS['RED']}Please enter a valid value (Y/N){TEXT_COLORS['RESET']} ",
+                end="",
+                flush=True,
+            )
             confirmation = input().lower()
-            
