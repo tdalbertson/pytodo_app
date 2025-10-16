@@ -1,7 +1,5 @@
-from task import Task
+from todo_list import ToDoList
 import shlex
-import os
-import json
 
 COMMANDS = ("add", "update", "delete", "mark-in-progress", "mark-done", "list", "exit")
 TEXT_COLORS = {
@@ -11,8 +9,15 @@ TEXT_COLORS = {
 }
 
 
-def runCLI():
-    """Begins CLI-like environment to accept todo commands"""
+def runCLI(todo_list: ToDoList):
+    """Start an interactive prompt for managing the given to-do list.
+
+    Continuously reads commands (add, update, delete, list, etc.) until the
+    user confirms exit.
+
+    Args:
+        todo_list: The mutable to-do list instance backing the session.
+    """
     running = True
 
     print(
