@@ -16,4 +16,10 @@ class Task:
         )
 
     def __str__(self):
-        return f"ID: {self.id}\nDescription: {self.description}\nStatus: {self.status}\nCreated At (MM/DD/YYYY): {self.createdAt.strftime('%m/%d/%Y')}\nUpdated At (MM/DD/YYYY): {self.updatedAt.strftime('%m/%d/%Y')}"
+        return f"""
+ID: {self.id}
+\tDescription: {self.description}
+\tStatus: {self.status}
+\tCreated At (MM/DD/YYYY): {self.createdAt.strftime("%m/%d/%Y, %H:%M")}
+\tUpdated At (MM/DD/YYYY): {self.updatedAt.strftime("%m/%d/%Y, %H:%M")}
+"""
