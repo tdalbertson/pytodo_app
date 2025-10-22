@@ -7,7 +7,7 @@ class ToDoList:
         self.filename = filename
         self.tasks = self.load_tasks_from_file()
 
-    def load_tasks_from_file(self):
+    def load_tasks_from_file(self) -> list:
         if os.path.exists(self.filename):
             # open existing file
             with open(self.filename, "r") as f:
@@ -21,3 +21,10 @@ class ToDoList:
             tasks = []
 
         return tasks
+    
+    def list_tasks(self):
+        if not self.tasks: # empty tasks list
+            print("Your todo list is empty! Please add a task.")
+        else:
+            for task in self.tasks:
+                print(str(task))
