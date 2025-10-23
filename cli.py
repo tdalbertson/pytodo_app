@@ -10,8 +10,9 @@ TEXT_COLORS = {
 }
 
 
-def run_CLI(todo_list: ToDoList):
-    """Start an interactive prompt for managing the given to-do list.
+def run_CLI(todo_list: ToDoList) -> None:
+    """
+    Start an interactive prompt for managing the given to-do list.
 
     Continuously reads commands (add, update, delete, list, etc.) until the
     user confirms exit.
@@ -50,7 +51,7 @@ def run_CLI(todo_list: ToDoList):
                 print("You chose 'mark-done")
             case "list":
                 if len(userInput) < 2:
-                    todo_list.list_tasks()
+                    list_command(todo_list)
                 elif len(userInput) == 2 and userInput[1] in LIST_ARGUMENTS:
                     pass
                     # check_list_command(userInput[1])
@@ -63,9 +64,23 @@ def run_CLI(todo_list: ToDoList):
                     f"{TEXT_COLORS['RED']}Error: Please enter a valid command ({', '.join(command for command in MAIN_COMMANDS)})"
                 )
 
+def list_command(todo_list: ToDoList) -> None:
+    """
+    Prints the tasks present in a todo_list
+    """
+    tasks = todo_list.list_tasks()
+    for line in tasks:
+        print(line)
+
 
 def confirm_exit() -> bool:
-    """Confirms if the user actually wants to exit this program"""
+    """Confirms if the user actually wants to exit this program
+    
+    Returns:
+        Boolean: Represents user's choice to exit or resume.
+                - True  -> User chooses to exit
+                - False -> User chooses to resume
+    """
     confirmation = input("Are you sure you want to exit? (Y/N) ").lower()
     while True:
         if confirmation == "y":
