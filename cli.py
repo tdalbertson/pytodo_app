@@ -39,7 +39,7 @@ def run_CLI(todo_list: ToDoList) -> None:
                 if len(userInput) < 2:
                     print("Please enter a task to add")
                 else:
-                    print(f'You added "{userInput[1]}"')
+                    todo_list.add_task(userInput[1])
 
             case "update":
                 print("You chose 'update'")
@@ -66,7 +66,12 @@ def run_CLI(todo_list: ToDoList) -> None:
 
 def list_command(todo_list: ToDoList) -> None:
     """
-    Prints the tasks present in a todo_list
+    Print all tasks in the given ToDoList.
+
+    If the todo list is empty, a message will be displayed instead.
+
+    Args:
+        todo_list (ToDoList): The ToDoList instance containing tasks to display.
     """
     tasks = todo_list.list_tasks()
     for line in tasks:
