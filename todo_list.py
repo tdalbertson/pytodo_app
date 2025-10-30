@@ -46,7 +46,14 @@ class ToDoList:
         else:
             return [str(task) for task in self.tasks]
         
-    def get_next_ID(self) -> None:
+    def get_next_ID(self) -> int:
+        """
+        Return an integer that represents the ID of next available ID
+
+        Returns:
+            int: 1 if no tasks exist indicating the start of tasks
+            Else the next available ID in tasks
+        """
         if not self.tasks:
             return 1 # ID of 1 to start
         else:
@@ -57,6 +64,6 @@ class ToDoList:
         Add a new task to the todo list.
 
         Args:
-            description (str): The description of the task to add.
+            task_description (str): The description of the task to add.
         """
         self.tasks.append(Task(self.next_ID, task_description))
