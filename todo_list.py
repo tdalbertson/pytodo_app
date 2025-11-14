@@ -20,19 +20,35 @@ class ToDoList:
             list[Task]: A list of Task objects representing the current tasks.
         """
         if os.path.exists(self.filename):
-            # open existing file
+            # Open existing file
             with open(self.filename, "r") as f:
                 data = json.load(f)
-            # rebuild list of Task objects from data
-            tasks = [Task(**item) for item in data]
+            # Rebuild list of Task objects from data
+            return [
+                Task(
+                    id=item["id"],
+                    description=item["description"],
+                    status=item["status"],
+                    created_at=item["created_at"],
+                    updated_at=item["updated_at"],
+                )
+                for item in data
+            ]
         else:
-            # file doesn’t exist yet → create one
-            with open(self.filename, "w") as f:
-                json.dump([], f)
             tasks = []
+        #     # File doesn’t exist yet → Create empty file
+        #     with open(self.filename, "w") as f:
+        #         pass
+        #     tasks = []
 
         return tasks
-    
+
+    def write_tasks_to_file(self) -> None:
+        with open(self.filename, "a") as f:
+            tasks_data = [task.to_dict() for task in self.tasks]
+
+            json.dump(tasks_data, f, indent=4)
+
     def list_tasks(self) -> list[str]:
         """
         Return a list of string representations of all tasks.
@@ -41,11 +57,11 @@ class ToDoList:
             list[str]: A list containing string representations of tasks.
             If no tasks exist, the list will contain a single message string.
         """
-        if not self.tasks: # empty tasks list
+        if not self.tasks:  # empty tasks list
             return ["Your todo list is empty! Please add a task."]
         else:
             return [str(task) for task in self.tasks]
-        
+
     def get_next_ID(self) -> int:
         """
         Return an integer that represents the ID of next available ID
@@ -55,7 +71,7 @@ class ToDoList:
             Else the next available ID in tasks
         """
         if not self.tasks:
-            return 1 # ID of 1 to start
+            return 1  # ID of 1 to start
         else:
             return max(task.id for task in self.tasks) + 1
 
@@ -67,3 +83,34 @@ class ToDoList:
             task_description (str): The description of the task to add.
         """
         self.tasks.append(Task(self.next_ID, task_description))
+
+    def remove_task(self, id: int) -> None:
+        """
+        Remove a task from the todo list.
+
+        Args:
+            id (int): The id of the task to remove.
+        """
+        if not self.get_next_ID(id):
+            print(
+                f"Task with ID {id} could not be found. Please try again with another ID."
+            )
+        else:
+            removed_task = self.tasks.pop(id)
+            print(f"Removed task: {removed_task.description}")
+
+    def get_task_by_id(self, target_id: int) -> int | None:
+        """
+        Helper method for locating the index of a task in the tasks list.
+
+        Args:
+            target_id (int): The ID of the task to locate.
+
+        Returns:
+            int: If found, returns the index of the task within the tasks list
+            None: Else, the target tasks does not exist within the tasks list
+        """
+        for i, task in enumerate(self.tasks):
+            if task.id == target_id:
+                return i
+        return None
