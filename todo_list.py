@@ -88,6 +88,8 @@ class ToDoList:
 
         Args:
             task_description (str): The description of the task to add.
+        Returns:
+            None
         """
         self.tasks.append(Task(self.next_ID, task_description))
 
@@ -97,6 +99,8 @@ class ToDoList:
 
         Args:
             id (int): The id of the task to remove.
+        Returns:
+            None
         """
         task_index = self.get_task_by_id(id)
         if task_index is None:
