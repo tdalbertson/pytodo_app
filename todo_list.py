@@ -2,6 +2,7 @@ import json
 import os
 from task import Task
 
+
 class ToDoList:
     def __init__(self, filename="tasks.json"):
         self.filename = filename
@@ -35,15 +36,21 @@ class ToDoList:
                 for item in data
             ]
         else:
+            # File doesn’t exist yet → Create empty file
             tasks = []
-        #     # File doesn’t exist yet → Create empty file
-        #     with open(self.filename, "w") as f:
-        #         pass
-        #     tasks = []
-
-        return tasks
+            with open(self.filename, "w") as f:
+                json.dump(tasks, f, indent=4)
+            return tasks
 
     def write_tasks_to_file(self) -> None:
+        """
+        Overwrite related tasks JSON file with data from CLI
+
+        Args:
+            None
+        Returns:
+            None
+        """
         with open(self.filename, "w") as f:
             tasks_data = [task.to_dict() for task in self.tasks]
 
