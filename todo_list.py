@@ -44,7 +44,7 @@ class ToDoList:
         return tasks
 
     def write_tasks_to_file(self) -> None:
-        with open(self.filename, "a") as f:
+        with open(self.filename, "w") as f:
             tasks_data = [task.to_dict() for task in self.tasks]
 
             json.dump(tasks_data, f, indent=4)
@@ -91,12 +91,13 @@ class ToDoList:
         Args:
             id (int): The id of the task to remove.
         """
-        if not self.get_next_ID(id):
+        task_index = self.get_task_by_id(id)
+        if task_index is None:
             print(
                 f"Task with ID {id} could not be found. Please try again with another ID."
             )
         else:
-            removed_task = self.tasks.pop(id)
+            removed_task = self.tasks.pop(task_index)
             print(f"Removed task: {removed_task.description}")
 
     def get_task_by_id(self, target_id: int) -> int | None:
