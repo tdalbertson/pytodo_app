@@ -1,8 +1,6 @@
 import json
 import os
 from task import Task
-from cli import STATUSES
-
 
 class ToDoList:
     def __init__(self, filename="tasks.json"):
