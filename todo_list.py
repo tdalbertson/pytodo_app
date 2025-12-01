@@ -1,6 +1,7 @@
 import json
 import os
 from task import Task
+from cli import STATUSES
 
 
 class ToDoList:
@@ -14,8 +15,8 @@ class ToDoList:
         Return a list of tasks.
 
         If a tasks file exists, it will be loaded and the list will be
-        populated with existing tasks. Otherwise, a new file will be
-        created and an empty list will be returned.
+        populated with existing tasks. 
+        Otherwise, a new file will be created and an empty list will be returned.
 
         Returns:
             list[Task]: A list of Task objects representing the current tasks.
@@ -56,9 +57,11 @@ class ToDoList:
 
             json.dump(tasks_data, f, indent=4)
 
-    def list_tasks(self) -> list[str]:
+    def list_tasks(self, status=None) -> list[str]:
         """
-        Return a list of string representations of all tasks.
+        Return a list of string representations of tasks.
+        If a status is provided, tasks with associated status will be returned.
+        Otherwise, all tasks in the list will be returned.
 
         Returns:
             list[str]: A list containing string representations of tasks.
