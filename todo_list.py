@@ -95,7 +95,9 @@ class ToDoList:
 
     def remove_task(self, id: int) -> None:
         """
-        Remove a task from the todo list.
+        Removes a task from the todo list.
+        If an ID cannot be found, the user is shown an failure message.
+        Otherwise, the associated task is removed from the list and the user is shown a success message.
 
         Args:
             id (int): The id of the task to remove.
@@ -126,3 +128,26 @@ class ToDoList:
             if task.id == target_id:
                 return i
         return None
+
+    def update_task_status(self, id: int, status: str) -> None:
+        """
+        Update a task's status based on specified status.
+        If an ID cannot be found, the user is shown an failure message.
+        Otherwise, the associated task's status is updated and the user is shown a success message.
+
+        Args:
+        task_id (int): The ID of a task to update.
+        status (str): The new task status to set.
+
+        Returns:
+            None
+        """
+        task_index = self.get_task_by_id(id)
+        if task_index is None:
+            print(
+                f"Task with ID {id} could not be found. Please try again with another ID."
+            )
+        else:
+            updated_task = self.tasks[task_index]
+            updated_task.status = status
+            print(f"Updated task {updated_task.description} to {status}")
