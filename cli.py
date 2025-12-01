@@ -1,16 +1,30 @@
 from todo_list import ToDoList
 import shlex
 
+CMD_ADD = "add"
+CMD_UPDATE = "update"
+CMD_DELETE = "delete"
+CMD_MARK_TODO = "mark-todo"
+CMD_MARK_IN_PROGRESS = "mark-in-progress"
+CMD_MARK_DONE = "mark-done"
+CMD_LIST = "list"
+CMD_EXIT = "exit"
+
 MAIN_COMMANDS = (
-    "add",
-    "update",
-    "delete",
-    "mark-in-progress",
-    "mark-done",
-    "list",
-    "exit",
+    CMD_ADD,
+    CMD_UPDATE,
+    CMD_DELETE,
+    CMD_MARK_TODO,
+    CMD_MARK_IN_PROGRESS,
+    CMD_MARK_DONE,
+    CMD_LIST,
+    CMD_EXIT,
 )
-LIST_ARGUMENTS = ("done", "todo", "in-progress")
+
+STATUS_TODO = "todo"
+STATUS_IN_PROGRESS = "in-progress"
+STATUS_DONE = "done"
+STATUSES = (STATUS_TODO, STATUS_IN_PROGRESS, STATUS_DONE)
 TEXT_COLORS = {
     "PURPLE": "\033[35m",
     "RED": "\033[31m",
@@ -40,66 +54,116 @@ def run_CLI(todo_list: ToDoList) -> None:
             end="",
             flush=True,
         )
-        user_input = shlex.split(input())
-        user_input_length = len(user_input)
 
         # Command and argument check
-        match user_input[0].lower():
-            case "add":
-                if not ensure_args_length(
-                    user_input_length,
-                    2,
-                    'Please enter a task to add\nEx. add "Buy groceries"',
-                ):
-                    continue
-                else:
-                    todo_list.add_task(user_input[1])
-            case "update":
-                if not ensure_args_length(
-                    user_input_length,
-                    3,
-                    'Please enter an ID task to update and the new task text\nEx. update 1 "Buy groceries and cook dinner"',
-                ):
-                    continue
-                
-                task_id = parse_int(user_input[1])
-                if task_id is None:
-                    continue
+        try:
+            user_input = shlex.split(input())
+            user_input_length = len(user_input)
+            match user_input[0].lower():
+                case "add":
+                    if not ensure_args_length(
+                        user_input_length,
+                        2,
+                        f'Please enter a task to add\nEx. {CMD_ADD} "Buy groceries"',
+                    ):
+                        continue
+                    else:
+                        todo_list.add_task(user_input[1])
+                case "update":
+                    if not ensure_args_length(
+                        user_input_length,
+                        3,
+                        f'Please enter an ID task to {CMD_UPDATE} and the new task text\nEx. update 1 "Buy groceries and cook dinner"',
+                    ):
+                        continue
 
-                print("You chose 'update'")
-            case "delete":
-                if not ensure_args_length(
-                    user_input_length,
-                    2,
-                    "Please provide a task ID to delete\nEx. delete 1",
-                ):
-                    continue
-                
-                task_id = parse_int(user_input[1])
-                if task_id is None:
-                    continue
+                    task_id = parse_int(user_input[1])
+                    if task_id is None:
+                        continue
 
-                todo_list.remove_task(task_id)
-            case "mark-in-progress":
-                print("You chose 'mark-in-progress'")
-            case "mark-done":
-                print("You chose 'mark-done")
-            case "list":
-                if user_input_length < 2:
-                    list_command(todo_list)
-                elif user_input_length == 2 and user_input[1] in LIST_ARGUMENTS:
-                    pass
-                    # check_list_command(user_input[1])
-                else:
+                    print("You chose 'update'")
+                case "delete":
+                    if not ensure_args_length(
+                        user_input_length,
+                        2,
+                        f"Please provide a task ID to {CMD_DELETE}\nEx. delete 1",
+                    ):
+                        continue
+
+                    delete_task = confirm_command(user_input[0])
+                    task_id = parse_int(user_input[1])
+                    if task_id is None:
+                        continue
+
+                    if delete_task:
+                        todo_list.remove_task(task_id)
+                case "mark-todo":
+                    if not ensure_args_length(
+                        user_input_length,
+                        2,
+                        f'Please enter an ID task to change the status to "{STATUS_TODO}".\nEx. mark-todo 1',
+                    ):
+                        continue
+
+                    task_id = parse_int(user_input[1])
+                    mark_todo = STATUS_TODO
+
+                    if task_id is None:
+                        continue
+                    todo_list.update_task_status(task_id, mark_todo)
+                case "mark-in-progress":
+                    if not ensure_args_length(
+                        user_input_length,
+                        2,
+                        f'Please enter an ID task to change the status to "{STATUS_IN_PROGRESS}".\nEx. mark-in-progress 1',
+                    ):
+                        continue
+
+                    task_id = parse_int(user_input[1])
+                    mark_in_progress = STATUS_IN_PROGRESS
+
+                    if task_id is None:
+                        continue
+                    todo_list.update_task_status(task_id, mark_in_progress)
+
+                case "mark-done":
+                    if not ensure_args_length(
+                        user_input_length,
+                        2,
+                        f'Please enter an ID task to change the status to "{STATUS_DONE}".\nEx. mark-in-progress 1',
+                    ):
+                        continue
+
+                    task_id = parse_int(user_input[1])
+                    mark_done = STATUS_DONE
+
+                    if task_id is None:
+                        continue
+                    todo_list.update_task_status(task_id, mark_done)
+                case "list":
+                    if user_input_length < 2:
+                        list_command(todo_list)
+                    elif user_input_length == 2 and user_input[1] in STATUSES:
+                        pass
+                    else:
+                        print(
+                            f"Please enter a valid list status: {', '.join(status for status in STATUSES)}"
+                        )
+                case "exit":
+                    confirm_exit = confirm_command("exit")
+                    if confirm_exit:
+                        break
+                case _:
                     print(
-                        f"Please enter a valid list argument: {', '.join(argument for argument in LIST_ARGUMENTS)}"
+                        f"{TEXT_COLORS['RED']}Error: Please enter a valid command ({', '.join(command for command in MAIN_COMMANDS)})"
                     )
-            case "exit":
-                running = confirm_command("exit")
-            case _:
-                print(
-                    f"{TEXT_COLORS['RED']}Error: Please enter a valid command ({', '.join(command for command in MAIN_COMMANDS)})"
-                )
+        except IndexError:
+            print(
+                f"{TEXT_COLORS['RED']}Please enter a command.{TEXT_COLORS['RESET']}",
+                end="\n",
+                flush=True,
+            )
+            continue
 
 
 def ensure_args_length(user_args: int, min_args: int, message: str) -> bool:
@@ -170,9 +234,9 @@ def confirm_command(command: str) -> bool:
     confirmation = input(f"Are you sure you want to {command}? (Y/N) ").upper()
     while True:
         if confirmation == "Y":
-            return False
-        elif confirmation == "N":
             return True
+        elif confirmation == "N":
+            return False
         else:
             print(
                 f"{TEXT_COLORS['RED']}Please enter a valid value (Y/N){TEXT_COLORS['RESET']} ",
