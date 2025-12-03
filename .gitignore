@@ -1,0 +1,14 @@
+# Python cache and venv
+__pycache__/
+*.pyc
+.venv/
+
+# macOS metadata
+.DS_STORE
+
+# IDE settings
+.vscode/
+.idea/
+
+# Local task file(s)
+*.json
