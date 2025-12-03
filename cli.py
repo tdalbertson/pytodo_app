@@ -31,6 +31,9 @@ TEXT_COLORS = {
     "RESET": "\033[0m",
 }
 
+ADD_CMD_STARTING_INDEX = 1
+UPDATE_CMD_STARTING_INDEX = 2
+
 
 def run_CLI(todo_list: ToDoList) -> None:
     """
@@ -41,6 +44,8 @@ def run_CLI(todo_list: ToDoList) -> None:
 
     Args:
         todo_list: The mutable to-do list instance backing the session.
+    Returns:
+        None
     """
     running = True
 
@@ -54,7 +59,6 @@ def run_CLI(todo_list: ToDoList) -> None:
             end="",
             flush=True,
         )
-
         # Command and argument check
         try:
             user_input = shlex.split(input())
@@ -68,20 +72,29 @@ def run_CLI(todo_list: ToDoList) -> None:
                     ):
                         continue
                     else:
-                        todo_list.add_task(user_input[1])
+                        task_description = format_arguments(
+                            ADD_CMD_STARTING_INDEX, user_input
+                        )
+                        todo_list.add_task(task_description)
+                        print(f"Added new task: {task_description}")
+                # TODO
                 case "update":
                     if not ensure_args_length(
                         user_input_length,
                         3,
-                        f'Please enter an ID task to {CMD_UPDATE} and the new task text\nEx. update 1 "Buy groceries and cook dinner"',
+                        f"Please enter an ID task to {CMD_UPDATE} and the new task description\nEx. update 1 Buy groceries and cook dinner",
                     ):
                         continue
 
                     task_id = parse_int(user_input[1])
                     if task_id is None:
                         continue
-
-                    print("You chose 'update'")
+                    else:
+                        new_description = format_arguments(
+                            UPDATE_CMD_STARTING_INDEX, user_input
+                        )
+                        todo_list.update_task_description(task_id, new_description)
+                        print(f"You updated task ID {task_id} to {new_description}")
                 case "delete":
                     if not ensure_args_length(
                         user_input_length,
@@ -125,7 +138,6 @@ def run_CLI(todo_list: ToDoList) -> None:
                     if task_id is None:
                         continue
                     todo_list.update_task_status(task_id, mark_in_progress)
-
                 case "mark-done":
                     if not ensure_args_length(
                         user_input_length,
@@ -184,7 +196,7 @@ def ensure_args_length(user_args: int, min_args: int, message: str) -> bool:
         return False
     return True
 
-
+#TODO: Move to todo_list.py
 def list_command(todo_list: ToDoList) -> None:
     """
     Print all tasks in the given ToDoList.
@@ -193,6 +205,9 @@ def list_command(todo_list: ToDoList) -> None:
 
     Args:
         todo_list (ToDoList): The ToDoList instance containing tasks to display.
+
+    Returns:
+        None
     """
     tasks = todo_list.list_tasks()
     for line in tasks:
@@ -244,3 +259,22 @@ def confirm_command(command: str) -> bool:
                 flush=True,
             )
             confirmation = input().upper()
+
+
+def format_arguments(starting_index: int, command_arguments: list[str]) -> str:
+    """
+    Extracts all words after the first (add) and
+    concatenates them.
+
+    Args:
+        starting_index (int): The index to begin parsing through command_arguments
+                Refer to the associated command constants (add, update, etc.)
+        command_arguments (list[str]): The arguments the user wants to execute the command on in a
+                form that cannot be parsed
+
+    Returns:
+        formatted_arguments (str): The arguments formatted for the command
+    """
+    formatted_arguments = " ".join(command_arguments[starting_index:])
+
+    return formatted_arguments
