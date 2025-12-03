@@ -12,10 +12,17 @@ class Task:
     ):
         self.id = id
         self.description = description
-        self.status = self.STATUSES[0]  # new tasks are automatically 'todo'
-        self.created_at = datetime.now()
+        # If status/timestamps were provided (e.g., when loading from existing tasks file), keep them.
+        self.status = status or self.STATUSES[0]
+        self.created_at = (
+            datetime.fromisoformat(created_at)
+            if created_at
+            else datetime.now()
+        )
         self.updated_at = (
-            self.created_at  # created_at & updated_at are the same when a new task is created
+            datetime.fromisoformat(updated_at)
+            if updated_at
+            else self.created_at
         )
 
     def __str__(self):
