@@ -2,7 +2,6 @@ import json
 import os
 from datetime import datetime
 from task import Task
-from cli import TEXT_COLORS
 
 
 class ToDoList:
@@ -73,7 +72,7 @@ class ToDoList:
             None
         """
         if not self.tasks:  # Empty tasks list
-            print("Your todo list is empty! Please add a task.", end="", flush=True)
+            print(f"Your todo list is empty! Please add a task.", end="", flush=True)
         elif not status:  # No status passed to command
             for task in self.tasks:
                 print(task)
