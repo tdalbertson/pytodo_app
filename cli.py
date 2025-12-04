@@ -81,7 +81,6 @@ def run_CLI(todo_list: ToDoList) -> None:
                             ADD_CMD_STARTING_INDEX, user_input
                         )
                         todo_list.add_task(task_description)
-                        print(f"Added new task: {task_description}")
                 case "update":
                     if not ensure_args_length(
                         user_input_length,
