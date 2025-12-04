@@ -72,7 +72,7 @@ class ToDoList:
             None
         """
         if not self.tasks:  # Empty tasks list
-            print(f"Your todo list is empty! Please add a task.", end="", flush=True)
+            print("Your todo list is empty! Please add a task.", end="\n", flush=True)
         elif not status:  # No status passed to command
             for task in self.tasks:
                 print(task)
