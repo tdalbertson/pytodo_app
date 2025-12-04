@@ -16,9 +16,9 @@ You will see the prompt `task-cli`. Type commands there.
 
 ## Commands
 - `add Buy groceries` — add a task.
-- `update 1 Buy groceries and cook dinner` — change description by ID.
-- `delete 1` — remove a task (asks for confirmation).
-- `mark-todo 1` / `mark-in-progress 1` / `mark-done 1` — change status.
+- `update {task_id} Buy groceries and cook dinner` — change description by ID.
+- `delete {task_id}` — remove a task (asks for confirmation).
+- `mark-todo {task_id}` / `mark-in-progress {task_id}` / `mark-done {task_id}` — change status.
 - `list` — show all tasks.
 - `exit` — quit (asks for confirmation).
 
