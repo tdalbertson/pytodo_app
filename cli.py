@@ -1,6 +1,7 @@
 from todo_list import ToDoList
 import shlex
 
+# Commands
 CMD_ADD = "add"
 CMD_UPDATE = "update"
 CMD_DELETE = "delete"
@@ -21,18 +22,22 @@ MAIN_COMMANDS = (
     CMD_EXIT,
 )
 
+# Statuses
 STATUS_TODO = "todo"
 STATUS_IN_PROGRESS = "in-progress"
 STATUS_DONE = "done"
 STATUSES = (STATUS_TODO, STATUS_IN_PROGRESS, STATUS_DONE)
+
+# Command Indexes
+ADD_CMD_STARTING_INDEX = 1
+UPDATE_CMD_STARTING_INDEX = 2
+
+# CLI Text Colors
 TEXT_COLORS = {
     "PURPLE": "\033[35m",
     "RED": "\033[31m",
     "RESET": "\033[0m",
 }
-
-ADD_CMD_STARTING_INDEX = 1
-UPDATE_CMD_STARTING_INDEX = 2
 
 
 def run_CLI(todo_list: ToDoList) -> None:
@@ -68,7 +73,7 @@ def run_CLI(todo_list: ToDoList) -> None:
                     if not ensure_args_length(
                         user_input_length,
                         2,
-                        f'Please enter a task to add\nEx. {CMD_ADD} "Buy groceries"',
+                        f"Please enter a task to add\nEx. {CMD_ADD} Buy groceries",
                     ):
                         continue
                     else:
@@ -77,7 +82,6 @@ def run_CLI(todo_list: ToDoList) -> None:
                         )
                         todo_list.add_task(task_description)
                         print(f"Added new task: {task_description}")
-                # TODO
                 case "update":
                     if not ensure_args_length(
                         user_input_length,
@@ -93,8 +97,7 @@ def run_CLI(todo_list: ToDoList) -> None:
                         new_description = format_arguments(
                             UPDATE_CMD_STARTING_INDEX, user_input
                         )
-                        todo_list.update_task_description(task_id, new_description)
-                        print(f"You updated task ID {task_id} to {new_description}")
+                        todo_list.update_task(task_id, CMD_UPDATE, new_description)
                 case "delete":
                     if not ensure_args_length(
                         user_input_length,
@@ -123,7 +126,7 @@ def run_CLI(todo_list: ToDoList) -> None:
 
                     if task_id is None:
                         continue
-                    todo_list.update_task_status(task_id, mark_todo)
+                    todo_list.update_task(task_id, CMD_MARK_TODO, mark_todo)
                 case "mark-in-progress":
                     if not ensure_args_length(
                         user_input_length,
@@ -137,7 +140,9 @@ def run_CLI(todo_list: ToDoList) -> None:
 
                     if task_id is None:
                         continue
-                    todo_list.update_task_status(task_id, mark_in_progress)
+                    todo_list.update_task(
+                        task_id, CMD_MARK_IN_PROGRESS, mark_in_progress
+                    )
                 case "mark-done":
                     if not ensure_args_length(
                         user_input_length,
@@ -151,12 +156,13 @@ def run_CLI(todo_list: ToDoList) -> None:
 
                     if task_id is None:
                         continue
-                    todo_list.update_task_status(task_id, mark_done)
+                    todo_list.update_task(task_id, CMD_MARK_DONE, mark_done)
                 case "list":
                     if user_input_length < 2:
-                        list_command(todo_list)
+                        todo_list.list_tasks()
                     elif user_input_length == 2 and user_input[1] in STATUSES:
-                        pass
+                        status = user_input[1]
+                        todo_list.list_tasks(status)
                     else:
                         print(
                             f"Please enter a valid list status: {', '.join(status for status in STATUSES)}"
@@ -179,7 +185,8 @@ def run_CLI(todo_list: ToDoList) -> None:
 
 
 def ensure_args_length(user_args: int, min_args: int, message: str) -> bool:
-    """Check if the user has provided enough arguments.
+    """
+    Check if the user has provided enough arguments.
 
     Args:
         user_args (int): The number of user-provided arguments
@@ -195,23 +202,6 @@ def ensure_args_length(user_args: int, min_args: int, message: str) -> bool:
         print(message)
         return False
     return True
-
-#TODO: Move to todo_list.py
-def list_command(todo_list: ToDoList) -> None:
-    """
-    Print all tasks in the given ToDoList.
-
-    If the todo list is empty, a message will be displayed instead.
-
-    Args:
-        todo_list (ToDoList): The ToDoList instance containing tasks to display.
-
-    Returns:
-        None
-    """
-    tasks = todo_list.list_tasks()
-    for line in tasks:
-        print(line)
 
 
 def parse_int(
@@ -236,7 +226,8 @@ def parse_int(
 
 
 def confirm_command(command: str) -> bool:
-    """Confirms if the user actually wants to execute a command.
+    """
+    Confirms if the user actually wants to execute a command.
 
     Args:
         command (str): The user command to confirm
