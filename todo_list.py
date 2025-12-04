@@ -109,7 +109,9 @@ class ToDoList:
         Returns:
             None
         """
-        self.tasks.append(Task(self.next_ID, task_description))
+        new_task = Task(self.next_ID, task_description)
+        self.tasks.append(new_task)
+        print(f"Task added successfully (ID: {new_task.id})")
 
     def remove_task(self, id: int) -> None:
         """
