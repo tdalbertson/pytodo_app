@@ -2,6 +2,7 @@ import json
 import os
 from datetime import datetime
 from task import Task
+from cli import TEXT_COLORS
 
 
 class ToDoList:
@@ -60,24 +61,28 @@ class ToDoList:
 
             json.dump(tasks_data, f, indent=4)
 
-    # TODO
-    def list_tasks(self, status=None) -> list[str]:
+    def list_tasks(self, status: str | None = None) -> None:
         """
-        Return a list of string representations of tasks.
-        If a status is provided, tasks with associated status will be returned.
-        Otherwise, all tasks in the list will be returned.
+        Return a list of string representations of tasks, optionally filtered by status.
 
         Args:
-            None
+            status (str | None) - The tasks status to filer by. Defaults to None,
+                which returns all the tasks.
 
         Returns:
-            list[str]: A list containing string representations of tasks.
-            If no tasks exist, the list will contain a single message string.
+            None
         """
-        if not self.tasks:  # empty tasks list
-            return ["Your todo list is empty! Please add a task."]
+        if not self.tasks:  # Empty tasks list
+            print("Your todo list is empty! Please add a task.", end="", flush=True)
+        elif not status:  # No status passed to command
+            for task in self.tasks:
+                print(task)
+        elif not any(task.status == status for task in self.tasks):
+            print(f'No tasks with status "{status}" found.', end="", flush=True)
         else:
-            return [str(task) for task in self.tasks]
+            for task in self.tasks:
+                if task.status == status:
+                    print(task)
 
     def get_next_ID(self) -> int:
         """
@@ -143,50 +148,43 @@ class ToDoList:
             if task.id == target_id:
                 return i
         return None
-    #TODO: Combine update methods as code repeats
-    def update_task_status(self, id: int, status: str) -> None:
+
+    def update_task(
+        self, task_id: int, update_command: str, new_task_data: str
+    ) -> None:
         """
-        Update a task's status based on specified status.
-        If an ID cannot be found, the user is shown a failure message.
-        Otherwise, the associated task's status is updated and the user is shown a success message.
+        Update a task's information.
+        If task a task_id cannot be found, the user is shown a failure message.
+        Otherwise, the task_info_to_update is updated with the new_task_data based on the update_command
+        and prints a success message.
 
         Args:
-        task_id (int): The ID of a task to update.
-        status (str): The new task status to set.
+            task_id (int): The ID of the task to update.
+            update_command (str): The update the user wants to perform.
+            new_task_data (str): The new data to update on the task.
 
         Returns:
             None
         """
-        task_index = self.get_task_by_id(id)
+
+        task_index = self.get_task_by_id(task_id)
         if task_index is None:
             print(
-                f"Task with ID {id} could not be found. Please try again with another ID."
+                f"Task with ID {task_id} could not be found. Please try again with another ID."
             )
         else:
-            task_soon_to_be_updated = self.tasks[task_index]
-            task_soon_to_be_updated.status = status
-            task_soon_to_be_updated.updated_at = datetime.now()
-            print(f"Updated task {task_soon_to_be_updated.description} to {status}")
-
-    def update_task_description(self, id: int, new_description: str):
-        """
-        Find's the specified task via its ID and updates its description with the
-        new_description
-
-        Args:
-            id (int): The ID of the task whose description to update.
-            new_description (str): The new task description to update the task.
-
-        Returns:
-            None
-        """
-        task_index = self.get_task_by_id(id)
-        if task_index is None:
-            print(
-                f"Task with ID {id} could not be found. Please try again with another ID."
-            )
-        else:
-            task_to_be_updated = self.tasks[task_index]
-            task_to_be_updated.description = new_description
-            task_to_be_updated.updated_at = datetime.now()
-            print(f"Updated task {task_to_be_updated.description} to {new_description}")
+            task_to_update = self.tasks[task_index]
+            match update_command:
+                case "update":
+                    task_to_update.description = new_task_data
+                case "mark-todo":
+                    task_to_update.status = "todo"
+                case "mark-in-progress":
+                    task_to_update.status = "in-progress"
+                case "mark-done":
+                    task_to_update.status = "done"
+                case _:
+                    print("Something went wrong", end="\n", flush=True)
+                    return
+            task_to_update.updated_at = datetime.now()
+            print(f"You updated Task #{task_id} to {new_task_data}")
