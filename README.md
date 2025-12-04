@@ -1,8 +1,9 @@
-https://github.com/tdalbertson/pytodo_app
-
 # py_todo_app
 
 Simple CLI to-do list written in Python. Tasks are stored in `tasks.json` so they persist between runs.
+
+## Task Tracker Project URL
+https://roadmap.sh/projects/task-tracker
 
 ## Requirements
 - Python 3.10+
