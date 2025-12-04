@@ -77,7 +77,7 @@ class ToDoList:
             for task in self.tasks:
                 print(task)
         elif not any(task.status == status for task in self.tasks):
-            print(f'No tasks with status "{status}" found.', end="", flush=True)
+            print(f'No tasks with status "{status}" found.', end="\n", flush=True)
         else:
             for task in self.tasks:
                 if task.status == status:
