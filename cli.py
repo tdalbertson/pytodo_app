@@ -1,32 +1,29 @@
-from todo_list import ToDoList
 import shlex
+from enum import Enum
+from todo_list import ToDoList
 
-# Commands
-CMD_ADD = "add"
-CMD_UPDATE = "update"
-CMD_DELETE = "delete"
-CMD_MARK_TODO = "mark-todo"
-CMD_MARK_IN_PROGRESS = "mark-in-progress"
-CMD_MARK_DONE = "mark-done"
-CMD_LIST = "list"
-CMD_EXIT = "exit"
 
-MAIN_COMMANDS = (
-    CMD_ADD,
-    CMD_UPDATE,
-    CMD_DELETE,
-    CMD_MARK_TODO,
-    CMD_MARK_IN_PROGRESS,
-    CMD_MARK_DONE,
-    CMD_LIST,
-    CMD_EXIT,
-)
+class Command(str, Enum):
+    ADD = "add"
+    UPDATE = "update"
+    DELETE = "delete"
+    MARK_TODO = "mark-todo"
+    MARK_IN_PROGRESS = "mark-in-progress"
+    MARK_DONE = "mark-done"
+    LIST = "list"
+    EXIT = "exit"
 
-# Statuses
-STATUS_TODO = "todo"
-STATUS_IN_PROGRESS = "in-progress"
-STATUS_DONE = "done"
-STATUSES = (STATUS_TODO, STATUS_IN_PROGRESS, STATUS_DONE)
+
+MAIN_COMMANDS = tuple(Command)
+
+
+class Status(str, Enum):
+    TODO = "todo"
+    IN_PROGRESS = "in-progress"
+    DONE = "done"
+
+
+STATUSES = tuple(Status)
 
 # Command Indexes
 ADD_CMD_STARTING_INDEX = 1
@@ -55,7 +52,7 @@ def run_CLI(todo_list: ToDoList) -> None:
     running = True
 
     print(
-        f"Welcome to your to-do list app! Please enter a command ({', '.join(command for command in MAIN_COMMANDS)}):"
+        f"Welcome to your to-do list app! Please enter a command ({', '.join(command.value for command in MAIN_COMMANDS)}):"
     )
 
     while running:
@@ -68,12 +65,20 @@ def run_CLI(todo_list: ToDoList) -> None:
         try:
             user_input = shlex.split(input())
             user_input_length = len(user_input)
-            match user_input[0].lower():
-                case "add":
+            try:
+                command = Command(user_input[0].lower())
+            except ValueError:
+                print(
+                    f"{TEXT_COLORS['RED']}Error: Please enter a valid command ({', '.join(command.value for command in MAIN_COMMANDS)})"
+                )
+                continue
+
+            match command:
+                case Command.ADD:
                     if not ensure_args_length(
                         user_input_length,
                         2,
-                        f"Please enter a task to add\nEx. {CMD_ADD} Buy groceries",
+                        f"Please enter a task to add\nEx. {Command.ADD.value} Buy groceries",
                     ):
                         continue
                     else:
@@ -81,11 +86,11 @@ def run_CLI(todo_list: ToDoList) -> None:
                             ADD_CMD_STARTING_INDEX, user_input
                         )
                         todo_list.add_task(task_description)
-                case "update":
+                case Command.UPDATE:
                     if not ensure_args_length(
                         user_input_length,
                         3,
-                        f"Please enter an ID task to {CMD_UPDATE} and the new task description\nEx. update 1 Buy groceries and cook dinner",
+                        f"Please enter an ID task to {Command.UPDATE.value} and the new task description\nEx. update 1 Buy groceries and cook dinner",
                     ):
                         continue
 
@@ -96,12 +101,12 @@ def run_CLI(todo_list: ToDoList) -> None:
                         new_description = format_arguments(
                             UPDATE_CMD_STARTING_INDEX, user_input
                         )
-                        todo_list.update_task(task_id, CMD_UPDATE, new_description)
-                case "delete":
+                        todo_list.update_task(task_id, Command.UPDATE.value, new_description)
+                case Command.DELETE:
                     if not ensure_args_length(
                         user_input_length,
                         2,
-                        f"Please provide a task ID to {CMD_DELETE}\nEx. delete 1",
+                        f"Please provide a task ID to {Command.DELETE.value}\nEx. delete 1",
                     ):
                         continue
 
@@ -112,67 +117,73 @@ def run_CLI(todo_list: ToDoList) -> None:
 
                     if delete_task:
                         todo_list.remove_task(task_id)
-                case "mark-todo":
+                case Command.MARK_TODO:
                     if not ensure_args_length(
                         user_input_length,
                         2,
-                        f'Please enter an ID task to change the status to "{STATUS_TODO}".\nEx. mark-todo 1',
+                        f'Please enter an ID task to change the status to "{Status.TODO.value}".\nEx. mark-todo 1',
                     ):
                         continue
 
                     task_id = parse_int(user_input[1])
-                    mark_todo = STATUS_TODO
+                    mark_todo = Status.TODO.value
 
                     if task_id is None:
                         continue
-                    todo_list.update_task(task_id, CMD_MARK_TODO, mark_todo)
-                case "mark-in-progress":
+                    todo_list.update_task(task_id, Command.MARK_TODO.value, mark_todo)
+                case Command.MARK_IN_PROGRESS:
                     if not ensure_args_length(
                         user_input_length,
                         2,
-                        f'Please enter an ID task to change the status to "{STATUS_IN_PROGRESS}".\nEx. mark-in-progress 1',
+                        f'Please enter an ID task to change the status to "{Status.IN_PROGRESS.value}".\nEx. mark-in-progress 1',
                     ):
                         continue
 
                     task_id = parse_int(user_input[1])
-                    mark_in_progress = STATUS_IN_PROGRESS
+                    mark_in_progress = Status.IN_PROGRESS.value
 
                     if task_id is None:
                         continue
                     todo_list.update_task(
-                        task_id, CMD_MARK_IN_PROGRESS, mark_in_progress
+                        task_id, Command.MARK_IN_PROGRESS.value, mark_in_progress
                     )
-                case "mark-done":
+                case Command.MARK_DONE:
                     if not ensure_args_length(
                         user_input_length,
                         2,
-                        f'Please enter an ID task to change the status to "{STATUS_DONE}".\nEx. mark-in-progress 1',
+                        f'Please enter an ID task to change the status to "{Status.DONE.value}".\nEx. mark-in-progress 1',
                     ):
                         continue
 
                     task_id = parse_int(user_input[1])
-                    mark_done = STATUS_DONE
+                    mark_done = Status.DONE.value
 
                     if task_id is None:
                         continue
-                    todo_list.update_task(task_id, CMD_MARK_DONE, mark_done)
-                case "list":
+                    todo_list.update_task(task_id, Command.MARK_DONE.value, mark_done)
+                case Command.LIST:
                     if user_input_length < 2:
                         todo_list.list_tasks()
-                    elif user_input_length == 2 and user_input[1] in STATUSES:
-                        status = user_input[1]
-                        todo_list.list_tasks(status)
+                    elif user_input_length == 2:
+                        try:
+                            status = Status(user_input[1])
+                        except ValueError:
+                            print(
+                                f"Please enter a valid list status: {', '.join(status.value for status in STATUSES)}"
+                            )
+                            continue
+                        todo_list.list_tasks(status.value)
                     else:
                         print(
-                            f"Please enter a valid list status: {', '.join(status for status in STATUSES)}"
+                            f"Please enter a valid list status: {', '.join(status.value for status in STATUSES)}"
                         )
-                case "exit":
+                case Command.EXIT:
                     confirm_exit = confirm_command("exit")
                     if confirm_exit:
                         break
                 case _:
                     print(
-                        f"{TEXT_COLORS['RED']}Error: Please enter a valid command ({', '.join(command for command in MAIN_COMMANDS)})"
+                        f"{TEXT_COLORS['RED']}Error: Please enter a valid command ({', '.join(command.value for command in MAIN_COMMANDS)})"
                     )
         except IndexError:
             print(
