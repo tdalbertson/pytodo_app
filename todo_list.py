@@ -10,12 +10,11 @@ class ToDoList:
         self.filename = filename
         self.tasks = self.load_tasks_from_file()
         self.used_ids = {task.id for task in self.tasks}  # Empty if no tasks are loaded
-        self.available_ids_from_removed_task = []  # Initialize empty min-heap to start
+        self.available_ids_from_deleted_task = []  # Initialize empty min-heap to start
         if self.used_ids:  # Find and add "in-between" ids to be used again
-            for num in range(1, max(self.used_ids) + 1):  # Stop before upper bound
-                if num not in self.used_ids:
-                    heapq.heappush(self.available_ids_from_removed_task, num)
-        self.next_ID = self.get_next_ID()
+            for num in range(1, max(self.used_ids, default=0) + 1):  # Stop before upper bound
+                if num not in self.used_ids: # Add to min-heap
+                    heapq.heappush(self.available_ids_from_deleted_task, num)
 
     def load_tasks_from_file(self) -> list[Task]:
         """
@@ -94,15 +93,15 @@ class ToDoList:
         """
         Return the next available task ID.
 
-        If there are any IDs in the `available_ids_from_removed_task` heap, reuse the smallest one.
+        If there are any IDs in the `available_ids_from_deleted_task` heap, reuse the smallest one.
         Otherwise, return the next highest ID after the maximum in `used_ids`.
         If no IDs exist yet (for a new or empty list), return 1.
 
         Returns:
             int: The next available task ID.
         """
-        if self.available_ids_from_removed_task:
-            return heapq.heappop(self.available_ids_from_removed_task)
+        if self.available_ids_from_deleted_task:
+            return heapq.heappop(self.available_ids_from_deleted_task)
         elif self.used_ids:
             return max(self.used_ids) + 1
         else:
@@ -110,7 +109,8 @@ class ToDoList:
 
     def add_task(self, task_description: str) -> None:
         """
-        Add a new task to the todo list.
+        Add a new task to the todo list, add the new task's id to `used_ids`, 
+        and display a confirmation message to the user.
 
         Args:
             task_description (str): The description of the task to add.
@@ -118,18 +118,22 @@ class ToDoList:
         Returns:
             None
         """
-        new_task = Task(self.next_ID, task_description)
+        new_id = self.get_next_ID()
+        new_task = Task(new_id, task_description)
         self.tasks.append(new_task)
-        print(f"Task added successfully (ID: {new_task.id})")
+        self.used_ids.add(new_id)
+        print(f"Task added successfully (ID: {new_task.id} - {new_task.description})")
 
-    def remove_task(self, id: int) -> None:
+    def delete_task(self, id: int) -> None:
         """
-        Removes a task from the todo list.
+        Deletes a task from the todo list.
         If an ID cannot be found, the user is shown an failure message.
-        Otherwise, the associated task is removed from the list and the user is shown a success message.
+        Otherwise, the associated task is deleted from the list, 
+        the task's id is deleted from used_ids & added to available_ids to be available for reuse,
+        and the user is shown a success message.
 
         Args:
-            id (int): The id of the task to remove.
+            id (int): The id of the task to delete.
 
         Returns:
             None
@@ -139,9 +143,12 @@ class ToDoList:
             print(
                 f"Task with ID {id} could not be found. Please try again with another ID."
             )
+            return
         else:
-            removed_task = self.tasks.pop(task_index)
-            print(f"Removed task: {removed_task.description}")
+            deleted_task = self.tasks.pop(task_index)
+            self.used_ids.remove(deleted_task.id)
+            heapq.heappush(self.available_ids_from_deleted_task, deleted_task.id)
+            print(f"deleted task: {deleted_task.description}")
 
     def get_task_by_id(self, target_id: int) -> int | None:
         """
@@ -165,7 +172,7 @@ class ToDoList:
         """
         Update a task's information.
         If task a task_id cannot be found, the user is shown a failure message.
-        Otherwise, the task_info_to_update is updated with the new_task_data based on the update_command
+        Otherwise, the task_info_to_update is updated with the `new_task_data` based on the update_command
         and prints a success message.
 
         Args:
