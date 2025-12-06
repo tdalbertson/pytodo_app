@@ -1,5 +1,6 @@
 import json
 import os
+import heapq
 from datetime import datetime
 from task import Task
 
@@ -8,6 +9,12 @@ class ToDoList:
     def __init__(self, filename="tasks.json"):
         self.filename = filename
         self.tasks = self.load_tasks_from_file()
+        self.used_ids = {task.id for task in self.tasks}  # Empty if no tasks are loaded
+        self.available_ids_from_removed_task = []  # Initialize empty min-heap to start
+        if self.used_ids:  # Find and add "in-between" ids to be used again
+            for num in range(1, max(self.used_ids) + 1):  # Stop before upper bound
+                if num not in self.used_ids:
+                    heapq.heappush(self.available_ids_from_removed_task, num)
         self.next_ID = self.get_next_ID()
 
     def load_tasks_from_file(self) -> list[Task]:
@@ -85,19 +92,21 @@ class ToDoList:
 
     def get_next_ID(self) -> int:
         """
-        Return an integer that represents the ID of next available ID
+        Return the next available task ID.
 
-        Args:
-            None
+        If there are any IDs in the `available_ids_from_removed_task` heap, reuse the smallest one.
+        Otherwise, return the next highest ID after the maximum in `used_ids`.
+        If no IDs exist yet (for a new or empty list), return 1.
 
         Returns:
-            int: 1 if no tasks exist indicating the start of tasks
-            Else the next available ID in tasks
+            int: The next available task ID.
         """
-        if not self.tasks:
-            return 1  # ID of 1 to start
+        if self.available_ids_from_removed_task:
+            return heapq.heappop(self.available_ids_from_removed_task)
+        elif self.used_ids:
+            return max(self.used_ids) + 1
         else:
-            return max(task.id for task in self.tasks) + 1
+            return 1
 
     def add_task(self, task_description: str) -> None:
         """
