@@ -26,3 +26,10 @@ You will see the prompt `task-cli`. Type commands there.
 - Tasks live in `tasks.json` in the project root.
 - Existing timestamps/status from the file are preserved when the app loads.
 - Tasks are saved to `tasks.json` when you exit the CLI (after you confirm `exit`). Work in progress is kept in memory until then.
+
+## Versioning
+This project uses **Semantic Versioning** for release management.
+
+- **Latest stable release:** `v1.1.0`
+- All release notes are available in the **[CHANGELOG](CHANGELOG.md)**.
+- Older versions can be accessed through Git tags in this repository.
