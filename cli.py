@@ -116,7 +116,7 @@ def run_CLI(todo_list: ToDoList) -> None:
                         continue
 
                     if delete_task:
-                        todo_list.remove_task(task_id)
+                        todo_list.delete_task(task_id)
                 case Command.MARK_TODO:
                     if not ensure_args_length(
                         user_input_length,
